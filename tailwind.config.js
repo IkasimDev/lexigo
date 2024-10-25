@@ -10,7 +10,9 @@ module.exports = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-      },
+        columnDisabled: "var(--disabled)",
+        columnColor: "#758aab"
+      }
     },
   },
   plugins: [],

@@ -3,13 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --background: #353535;
+  --background: #111827;
   --foreground: #171717;
+  --disabled: #1f2937;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #353535;
+    --background: #111827;
     --foreground: #ededed;
   }
 }
@@ -18,4 +19,11 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer components {
+  .columnDisabled {
+    border-color: #1f2937 !important;
+    background: #111827 !important;
+  }
 }
