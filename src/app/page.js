@@ -1,6 +1,9 @@
 "use client"
+import Footer from "@/components/Footer/footer";
+import HelperModal from "@/components/Modal/helper";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+
 
 async function getTodayWord() {
   // TODO: Lógica para fazer a requisição da API para pegar a palavra e o significado dela
@@ -14,7 +17,7 @@ async function getTodayWord() {
 
 export default function Home() {
 
-  const [ans, setAns] = useState("amora"); // Resposta
+  const [ans, setAns] = useState("teste"); // Resposta
   const [guesses, setGuesses] = useState(Array(6).fill("")); // Palavras tentadas em um array
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0); // Letra atual, ná pratica isso aqui só serve para termos uma referência visual de em que quadrado estamos no front end
   const [currentGuessIndex, setCurrentGuessIndex] = useState(0); // Tentativa atual
@@ -73,7 +76,7 @@ export default function Home() {
     // Faço a verificação para ver se essa tentativa esta dentro do limite de 5 tentativos e verifico também se a palavra da tentativa tem 5 letras, para evitar de enviar palavras com menos letras
     if (currentGuessIndex < 5 && guesses[currentGuessIndex].length == 5) {
       checkGuess(guesses[currentGuessIndex])
-      if(guesses[currentGuessIndex].toLowerCase() === ans) {
+      if (guesses[currentGuessIndex].toLowerCase() === ans) {
         console.log("Resposta Certa")
         setGuessedRight(true);
       } else {
@@ -90,9 +93,9 @@ export default function Home() {
     const answerArray = ans.split(""); // Dividimos a resposta em letras em um array
     const guessArray = guess.toLowerCase().split(""); // Fazemos o mesmo para a palavra da tentativa atual
     const newColors = Array(5).fill("wordWrong"); // Criamos um array com as cores
-  
+
     const tempAns = [...answerArray]; // Criamos uma duplicata do array resposta 
-    
+
     // Primeiro loop para marcar as letras na posição correta
     guessArray.forEach((letter, index) => {
       if (letter === answerArray[index]) { // Se a letra estiver na mesma posição que na resposta
@@ -100,7 +103,7 @@ export default function Home() {
         tempAns[index] = null; // Como a letra já foi vista removemos ela do array com
       }
     });
-  
+
     // Segundo loop para letras corretas na posição errada
     guessArray.forEach((letter, index) => {
       if (newColors[index] !== "wordRight" && tempAns.includes(letter)) { // Aqui existe uam verificação para ver se o index da cor é diferente de verde e então veiricamos se a letra se inclui no array temporario da resposta.
@@ -108,7 +111,7 @@ export default function Home() {
         tempAns[tempAns.indexOf(letter)] = null; // Como a letra já foi vista removemos ela do array com
       }
     });
-  
+
     // Atualiza as cores no estado
     const updatedColors = [...colors]; // Setamos o array modificado
     updatedColors[currentGuessIndex] = newColors; // Adicionamos as cores aos respectivos indexes
@@ -116,23 +119,27 @@ export default function Home() {
   };
 
   return (
-    <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center p-8 pb-20 gap-8 font-[family-name:var(--font-geist-sans)] text-white">
+    <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center p-4 gap-8 font-[family-name:var(--font-geist-sans)] text-white">
 
       {/* Main Content */}
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start w-full max-w-2xl">
 
+        {/* <HelperModal /> */}
+
         {/* Significado */}
         <div className="bg-gray-800 p-4 rounded-lg shadow-lg text-center">
-          <h1 className="text-lg font-bold">Significado:</h1>
-          <p className="text-base">
-            Unidade linguística com significado próprio e existência independente, que pode ser escrita ou falada.
-          </p>
+          <div>
+            <h1 className="text-lg font-bold">Significado:</h1>
+            <p className="text-base">
+              Unidade linguística com significado próprio e existência independente, que pode ser escrita ou falada.
+            </p>
+          </div>
         </div>
 
         {/* Coluna das Palavras */}
-        <div id="G-Palavras" className="text-2xl grid grid-rows-[repeat(6,4.5rem)] gap-2 m-0 p-0 w-full h-full justify-center">
+        <div id="G-Palavras" className="text-2xl grid grid-rows-[repeat(6,3.5rem)] gap-2 m-0 p-0 w-full h-full justify-center">
           {guesses.map((guess, rowIndex) => (
-            <div key={rowIndex} id={`G-Palavra-${rowIndex + 1}`} className="grid grid-cols-[repeat(5,4.5rem)] gap-1 text-[1.5rem] h-[4.5rem] m-0">
+            <div key={rowIndex} id={`G-Palavra-${rowIndex + 1}`} className="grid grid-cols-[repeat(5,3.5rem)] gap-1 text-[1.5rem] h-[3.5rem] m-0">
               {Array.from({ length: 5 }, (_, colIndex) => (
                 <div
                   key={colIndex}
@@ -184,9 +191,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="row-start-3 text-sm text-gray-400">
-        <p>Desenvolvido com muita raiva 😡 por @misakiix e @arkhalliz</p>
-      </footer>
+      <Footer />
     </div>
   );
 }
