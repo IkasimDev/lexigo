@@ -18,6 +18,10 @@ export default function Home() {
   const [guesses, setGuesses] = useState(Array(6).fill("")); // Palavras tentadas em um array
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0); // Letra atual, ná pratica isso aqui só serve para termos uma referência visual de em que quadrado estamos no front end
   const [currentGuessIndex, setCurrentGuessIndex] = useState(0); // Tentativa atual
+  const [animate, setAnimate] = useState(false); // animação dos quadrado
+  const [colors, setColors] = useState(Array(6).fill(Array(5).fill("bg-gray-700"))); // Novo estado para cores
+
+  const [guessedRight, setGuessedRight] = useState(false);
 
   // useEffect com um addEventListener que vai escutar por teclas sendo pressionadas no teclado
   useEffect(() => {
@@ -26,9 +30,9 @@ export default function Home() {
 
       if (/^[a-z]$/.test(word)) { // Usamos um regex para verificar se a palavra está usando letras do alfabeto (para evitar, número e outras coisas)
         addLetter(word.toUpperCase()); // Enfim chamamos a função que adicionará a letra a palavra
-      } else if(e.key === "Backspace") { // Se por acaso a tecla for a de apagar, então chama a função de deletar letra
+      } else if (e.key === "Backspace") { // Se por acaso a tecla for a de apagar, então chama a função de deletar letra
         removeLetter()
-      } else if(e.key === "Enter") { // Se por acaso a tecla for enter, então dá submit na tentativa
+      } else if (e.key === "Enter") { // Se por acaso a tecla for enter, então dá submit na tentativa
         submitGuess();
       }
     }
@@ -46,8 +50,13 @@ export default function Home() {
     if (guesses[currentGuessIndex].length < 5) { // verifica se a palavra tem menos de 5 letras, se tiver então pode adicionar letras
       const updatedGuesses = [...guesses]; // Spread Operator para retornar uma duplicata do array de palavras tentadas
       updatedGuesses[currentGuessIndex] += letter; // Realizo a adição da letra à palavra do array, utilizando a tentativa atuação com index do array
+
+      // Acionar animação
+      setAnimate(true);
+
       setGuesses(updatedGuesses); // Seto o array modificado para o UseState
       setCurrentLetterIndex(currentLetterIndex + 1) // Acrescento 1 no index da letra atual
+
     }
   }
 
@@ -63,12 +72,48 @@ export default function Home() {
   const submitGuess = () => {
     // Faço a verificação para ver se essa tentativa esta dentro do limite de 5 tentativos e verifico também se a palavra da tentativa tem 5 letras, para evitar de enviar palavras com menos letras
     if (currentGuessIndex < 5 && guesses[currentGuessIndex].length == 5) {
-      setCurrentGuessIndex(currentGuessIndex + 1); // Realizo a incrementação da tentativa, em suma passando para a próxima coluna.
-      setCurrentLetterIndex(0); // Reinicia o índice da letra para a nova tentativa
+      checkGuess(guesses[currentGuessIndex])
+      if(guesses[currentGuessIndex].toLowerCase() === ans) {
+        console.log("Resposta Certa")
+        setGuessedRight(true);
+      } else {
+        setCurrentGuessIndex(currentGuessIndex + 1); // Realizo a incrementação da tentativa, em suma passando para a próxima coluna.
+        setCurrentLetterIndex(0); // Reinicia o índice da letra para a nova tentativa
+      }
     }
     // TODO: Adicionar lógica para verificar se a palavra é de acordo com a resposta
     // Lembrando que o guesses[currentGuessIndex] vai retornar a palavra em letra maiúscula e.g: AMORA, terá que deixar minúscula utilizando o toLowerCase() para fazer a verificação guesses[currentGuessIndex] == ans 
   }
+
+  // Função para checar a resposta
+  const checkGuess = (guess) => {
+    const answerArray = ans.split(""); // Dividimos a resposta em letras em um array
+    const guessArray = guess.toLowerCase().split(""); // Fazemos o mesmo para a palavra da tentativa atual
+    const newColors = Array(5).fill("wordWrong"); // Criamos um array com as cores
+  
+    const tempAns = [...answerArray]; // Criamos uma duplicata do array resposta 
+    
+    // Primeiro loop para marcar as letras na posição correta
+    guessArray.forEach((letter, index) => {
+      if (letter === answerArray[index]) { // Se a letra estiver na mesma posição que na resposta
+        newColors[index] = "wordRight"; // Definimos então a cor para a letra certa e colocamos no array de cores
+        tempAns[index] = null; // Como a letra já foi vista removemos ela do array com
+      }
+    });
+  
+    // Segundo loop para letras corretas na posição errada
+    guessArray.forEach((letter, index) => {
+      if (newColors[index] !== "wordRight" && tempAns.includes(letter)) { // Aqui existe uam verificação para ver se o index da cor é diferente de verde e então veiricamos se a letra se inclui no array temporario da resposta.
+        newColors[index] = "wordWarn"; // Colocamos então a cor laranja para essa letra
+        tempAns[tempAns.indexOf(letter)] = null; // Como a letra já foi vista removemos ela do array com
+      }
+    });
+  
+    // Atualiza as cores no estado
+    const updatedColors = [...colors]; // Setamos o array modificado
+    updatedColors[currentGuessIndex] = newColors; // Adicionamos as cores aos respectivos indexes
+    setColors(updatedColors); // Finalmente atualizamos o state com o array finalizado.
+  };
 
   return (
     <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center p-8 pb-20 gap-8 font-[family-name:var(--font-geist-sans)] text-white">
@@ -92,10 +137,11 @@ export default function Home() {
                 <div
                   key={colIndex}
                   id={`G-Palavra-${rowIndex + 1}-Letra-${colIndex + 1}`}
-                  className={`bg-transparent border border-columnColor border-[0.125rem] rounded flex items-center justify-center ${rowIndex === currentGuessIndex && colIndex === currentLetterIndex ? 'border-b-4 border-b-white' : ''} ${rowIndex !== currentGuessIndex ? 'columnDisabled' : ''}`}
-                  // onClick={() => {
-                  //     setCurrentLetterIndex(colIndex)
-                  // }}
+                  className={`bg-transparent border border-columnColor border-[0.4rem] rounded flex items-center justify-center ${colors[rowIndex][colIndex]} ${animate && rowIndex === currentGuessIndex && colIndex === currentLetterIndex ? 'animate-type' : ''} ${rowIndex === currentGuessIndex && colIndex === currentLetterIndex ? 'border-b-4 border-b-white' : ''} ${rowIndex !== currentGuessIndex ? 'columnDisabled' : ''}`}
+                  onAnimationEnd={() => setAnimate(false)}
+                // onClick={() => {
+                //     setCurrentLetterIndex(colIndex)
+                // }}
                 >
                   {guess[colIndex] || ""}
                   {/* {console.log(`RowIndex: ${rowIndex} - ColIndex: ${colIndex} - currentGuessI: ${currentGuessIndex} - CurrentLetterI: ${currentLetterIndex}`)} */}
