@@ -46,7 +46,7 @@ export default function Home() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown); // removemos o listener depois de alguma detecção para evitar alguns bugs
     }
-  }, [guesses, currentGuessIndex, currentLetterIndex, guessedRight, addLetter, removeLetter, submitGuess]) // Depêndencias do useEffect
+  }, [guesses, currentGuessIndex, currentLetterIndex, guessedRight]) // Depêndencias do useEffect
 
 
   // Função que adiciona a letra à palavra
