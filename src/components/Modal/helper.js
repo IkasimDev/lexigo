@@ -22,7 +22,7 @@ export default function HelperModal({ setController }) {
                             </div>
                         ))}
                     </div>
-                    <p className="helperTxt">A letra "C" faz parte da palavra e está na posição correta.</p>
+                    <p className="helperTxt">A letra &quot;C&quot; faz parte da palavra e está na posição correta.</p>
 
                     {/* Exemplo de letra correta em posição errada */}
                     <div className="grid grid-cols-[repeat(5,3.5rem)] gap-1 text-[1.5rem] h-[3.5rem] m-0">
@@ -41,7 +41,7 @@ export default function HelperModal({ setController }) {
                             </div>
                         ))}
                     </div>
-                    <p className="helperTxt">A letra "V" faz parte da palavra mas em outra posição.</p>
+                    <p className="helperTxt">A letra &quot;V&quot; faz parte da palavra mas em outra posição.</p>
 
                     {/* Exemplo de letra incorreta */}
                     <div className="grid grid-cols-[repeat(5,3.5rem)] gap-1 text-[1.5rem] h-[3.5rem] m-0">
@@ -60,7 +60,7 @@ export default function HelperModal({ setController }) {
                             </div>
                         ))}
                     </div>
-                    <p className="helperTxt">A letra "M" não faz parte da palavra.</p>
+                    <p className="helperTxt">A letra &quot;M&quot; não faz parte da palavra.</p>
 
                     <p className="helperTxt">Os acentos são preenchidos automaticamente e não são considerados nas dicas.</p>
                     <p className="helperTxt">As palavras podem possuir letras repetidas.</p>
