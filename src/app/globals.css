@@ -26,15 +26,27 @@ body {
     border-color: #1f2937 !important;
     background: #111827 !important;
   }
+
   .wordWarn {
     border-color: #b18605 !important;
     background-color: #eab308 !important;
   }
+
   .wordWrong {
     background-color: #374151 !important;
   }
+
   .wordRight {
     border-color: #137b39 !important;
     background-color: #22c55e !important;
+  }
+
+  .helperTxt {
+    padding-bottom: 1rem;
+    padding-top: 1rem;
+    color: #bbb;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.35em;
   }
 }

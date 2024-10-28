@@ -1,6 +1,5 @@
 "use client"
 import Footer from "@/components/Footer/footer";
-import HelperModal from "@/components/Modal/helper";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -31,6 +30,8 @@ export default function Home() {
     const handleKeyDown = (e) => { // Função que pegará a tecla e realizará a ação pretendida
       const word = e.key.toLowerCase(); // Colocamos a palavra em minúsculo para evitar diferenciação com teclas sendo digitadas em maiúsculas
 
+      if(guessedRight) return // Se já tiver acertado, sem necessidade de prosseguir mais
+
       if (/^[a-z]$/.test(word)) { // Usamos um regex para verificar se a palavra está usando letras do alfabeto (para evitar, número e outras coisas)
         addLetter(word.toUpperCase()); // Enfim chamamos a função que adicionará a letra a palavra
       } else if (e.key === "Backspace") { // Se por acaso a tecla for a de apagar, então chama a função de deletar letra
@@ -45,12 +46,13 @@ export default function Home() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown); // removemos o listener depois de alguma detecção para evitar alguns bugs
     }
-  }, [guesses, currentGuessIndex, currentLetterIndex]) // Depêndencias do useEffect
+  }, [guesses, currentGuessIndex, currentLetterIndex, guessedRight]) // Depêndencias do useEffect
 
 
   // Função que adiciona a letra à palavra
   const addLetter = (letter) => { // Ela recebe um argumento letter, que é uma string, que obviamente é a letra
-    if (guesses[currentGuessIndex].length < 5) { // verifica se a palavra tem menos de 5 letras, se tiver então pode adicionar letras
+
+    if (guesses[currentGuessIndex].length < 5 && !guessedRight) { // verifica se a palavra tem menos de 5 letras, se tiver então pode adicionar letras
       const updatedGuesses = [...guesses]; // Spread Operator para retornar uma duplicata do array de palavras tentadas
       updatedGuesses[currentGuessIndex] += letter; // Realizo a adição da letra à palavra do array, utilizando a tentativa atuação com index do array
 
@@ -65,6 +67,7 @@ export default function Home() {
 
   // Função para remover letra da palavra
   const removeLetter = () => {
+    if(guessedRight) return // Se já tiver acertado, sem necessidade de prosseguir mais
     const updatedGuesses = [...guesses]; // Mesmo esquema, retorna uma duplicata do array
     updatedGuesses[currentGuessIndex] = updatedGuesses[currentGuessIndex].slice(0, -1); // Realiza a modificação removendo a ultima letra na extrema ponta direita (-1)
     setGuesses(updatedGuesses) // Seto o array modificado para o UseState
@@ -74,7 +77,7 @@ export default function Home() {
   // Função para fazer o submit da tentativa
   const submitGuess = () => {
     // Faço a verificação para ver se essa tentativa esta dentro do limite de 5 tentativos e verifico também se a palavra da tentativa tem 5 letras, para evitar de enviar palavras com menos letras
-    if (currentGuessIndex < 5 && guesses[currentGuessIndex].length == 5) {
+    if (currentGuessIndex < 5 && guesses[currentGuessIndex].length == 5 && !guessedRight) {
       checkGuess(guesses[currentGuessIndex])
       if (guesses[currentGuessIndex].toLowerCase() === ans) {
         console.log("Resposta Certa")
@@ -124,16 +127,12 @@ export default function Home() {
       {/* Main Content */}
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start w-full max-w-2xl">
 
-        {/* <HelperModal /> */}
-
         {/* Significado */}
-        <div className="bg-gray-800 p-4 rounded-lg shadow-lg text-center">
-          <div>
+        <div className="bg-gray-800 p-4 rounded-lg shadow-lg text-center w-full">
             <h1 className="text-lg font-bold">Significado:</h1>
             <p className="text-base">
-              Unidade linguística com significado próprio e existência independente, que pode ser escrita ou falada.
+              Prova que verifica a verdade em relação a algo ou alguém.
             </p>
-          </div>
         </div>
 
         {/* Coluna das Palavras */}
