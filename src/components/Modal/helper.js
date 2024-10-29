@@ -1,8 +1,9 @@
 export default function HelperModal({ setController }) {
     return (
-        <div className="absolute inset-0 z-[1000] text-white font-light font-mitr" onClick={() => {setController(false)}}>
+        <div className="absolute inset-0 z-[1000] text-white font-light font-mitr">
             <div className="w-full box-border h-full bg-[rgba(70,70,70,0.5)] flex flex-col justify-center items-center p-[6vh_2em_2em]">
-                <div className="max-w-[720px] p-6 w-full bg-[#111827] box-border rounded-lg overflow-auto z-[19000] pointer-events-auto leading-[1.5em]">
+                <div className="max-w-[720px] p-12 w-full bg-[#1E1E2E] box-border rounded-lg overflow-auto z-[19000] pointer-events-auto leading-[1.5em]">
+                    <div className="text-right cursor-pointer" onClick={() => {setController(false)}}>❌</div>
                     <p className="helperTxt">Descubra a palavra certa em 6 tentativas com base no significado dela. Depois de cada tentativa, as peças mostram o quão perto você está da solução.</p>
 
                     {/* Exemplo de letra correta na posição correta */}

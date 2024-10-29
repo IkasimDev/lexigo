@@ -11,7 +11,7 @@ module.exports = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         columnDisabled: "var(--disabled)",
-        columnColor: "#758aab"
+        columnColor: "#6954a5"
       },
       animation: {
         'type': 'type 0.15s ease-out 1'

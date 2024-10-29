@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --background: #111827;
+  --background: #1E1E2E;
   --foreground: #171717;
   --disabled: #1f2937;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #111827;
+    --background: #1E1E2E;
     --foreground: #ededed;
   }
 }
@@ -28,23 +28,24 @@ body {
   }
 
   .wordWarn {
-    border-color: #b18605 !important;
-    background-color: #eab308 !important;
+    border-color: #B58900 !important;
+    background-color: #B58900 !important;
   }
 
   .wordWrong {
-    background-color: #374151 !important;
+    border-color: #606060 !important;
+    background-color: #606060 !important;
   }
 
   .wordRight {
-    border-color: #137b39 !important;
-    background-color: #22c55e !important;
+    border-color: #008037 !important;
+    background-color: #008037 !important;
   }
 
   .helperTxt {
     padding-bottom: 1rem;
     padding-top: 1rem;
-    color: #bbb;
+    color: #D3D3D3;
     font-size: 1.25rem;
     font-weight: 600;
     line-height: 1.35em;

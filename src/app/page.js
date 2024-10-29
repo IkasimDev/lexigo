@@ -16,7 +16,7 @@ async function getTodayWord() {
 
 export default function Home() {
 
-  const [ans, setAns] = useState("teste"); // Resposta
+  const [ans, setAns] = useState("feira"); // Resposta
   const [guesses, setGuesses] = useState(Array(6).fill("")); // Palavras tentadas em um array
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0); // Letra atual, ná pratica isso aqui só serve para termos uma referência visual de em que quadrado estamos no front end
   const [currentGuessIndex, setCurrentGuessIndex] = useState(0); // Tentativa atual
@@ -30,7 +30,7 @@ export default function Home() {
     const handleKeyDown = (e) => { // Função que pegará a tecla e realizará a ação pretendida
       const word = e.key.toLowerCase(); // Colocamos a palavra em minúsculo para evitar diferenciação com teclas sendo digitadas em maiúsculas
 
-      if(guessedRight) return // Se já tiver acertado, sem necessidade de prosseguir mais
+      if (guessedRight) return // Se já tiver acertado, sem necessidade de prosseguir mais
 
       if (/^[a-z]$/.test(word)) { // Usamos um regex para verificar se a palavra está usando letras do alfabeto (para evitar, número e outras coisas)
         addLetter(word.toUpperCase()); // Enfim chamamos a função que adicionará a letra a palavra
@@ -67,7 +67,7 @@ export default function Home() {
 
   // Função para remover letra da palavra
   const removeLetter = () => {
-    if(guessedRight) return // Se já tiver acertado, sem necessidade de prosseguir mais
+    if (guessedRight) return // Se já tiver acertado, sem necessidade de prosseguir mais
     const updatedGuesses = [...guesses]; // Mesmo esquema, retorna uma duplicata do array
     updatedGuesses[currentGuessIndex] = updatedGuesses[currentGuessIndex].slice(0, -1); // Realiza a modificação removendo a ultima letra na extrema ponta direita (-1)
     setGuesses(updatedGuesses) // Seto o array modificado para o UseState
@@ -122,17 +122,17 @@ export default function Home() {
   };
 
   return (
-    <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center p-4 gap-8 font-[family-name:var(--font-geist-sans)] text-white">
+    <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center p-4 gap-8 font-[family-name:var(--font-geist-sans)] text-[#D3D3D3]">
 
       {/* Main Content */}
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start w-full max-w-2xl">
 
         {/* Significado */}
-        <div className="bg-gray-800 p-4 rounded-lg shadow-lg text-center w-full">
-            <h1 className="text-lg font-bold">Significado:</h1>
-            <p className="text-base">
-              Prova que verifica a verdade em relação a algo ou alguém.
-            </p>
+        <div className="bg-[#2E2E3E] p-4 rounded-lg shadow-lg text-center w-full text-white">
+          <h1 className="text-lg font-bold">Significado:</h1>
+          <p className="text-base">
+            Mercado público em dias ou épocas fixas em lugar determinado.
+          </p>
         </div>
 
         {/* Coluna das Palavras */}
@@ -143,7 +143,7 @@ export default function Home() {
                 <div
                   key={colIndex}
                   id={`G-Palavra-${rowIndex + 1}-Letra-${colIndex + 1}`}
-                  className={`bg-transparent border border-columnColor border-[0.4rem] rounded flex items-center justify-center ${colors[rowIndex][colIndex]} ${animate && rowIndex === currentGuessIndex && colIndex === currentLetterIndex ? 'animate-type' : ''} ${rowIndex === currentGuessIndex && colIndex === currentLetterIndex ? 'border-b-4 border-b-white' : ''} ${rowIndex !== currentGuessIndex ? 'columnDisabled' : ''}`}
+                  className={`bg-transparent border border-columnColor border-[0.4rem] rounded flex items-center justify-center text-white font-bold ${colors[rowIndex][colIndex]} ${animate && rowIndex === currentGuessIndex && colIndex === currentLetterIndex ? 'animate-type' : ''} ${rowIndex === currentGuessIndex && colIndex === currentLetterIndex ? 'border-b-4 border-b-white' : ''} ${rowIndex !== currentGuessIndex ? 'columnDisabled' : ''}`}
                   onAnimationEnd={() => setAnimate(false)}
                 // onClick={() => {
                 //     setCurrentLetterIndex(colIndex)
@@ -161,28 +161,28 @@ export default function Home() {
         <div className="row-start-3 grid grid-rows-3 gap-2">
           <div className="flex gap-2 justify-center">
             {"QWERTYUIOP".split("").map((key) => (
-              <button key={key} onClick={() => addLetter(key)} className="w-14 h-14 bg-gray-700 text-white rounded shadow-md hover:bg-gray-600">
+              <button key={key} onClick={() => addLetter(key)} className="w-14 h-14 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600">
                 {key}
               </button>
             ))}
           </div>
           <div className="flex gap-2 justify-center">
             {"ASDFGHJKL".split("").map((key) => (
-              <button key={key} onClick={() => addLetter(key)} className="w-14 h-14 bg-gray-700 text-white rounded shadow-md hover:bg-gray-600">
+              <button key={key} onClick={() => addLetter(key)} className="w-14 h-14 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600">
                 {key}
               </button>
             ))}
-            <button className="w-20 bg-gray-700 text-white rounded shadow-md hover:bg-gray-600" onClick={removeLetter}>
+            <button className="w-20 bg-[#2E2E3E] text-white rounded shadow-md hover:bg-gray-600" onClick={removeLetter}>
               Apagar
             </button>
           </div>
           <div className="flex gap-2 justify-center">
             {"ZXCVBNM".split("").map((key) => (
-              <button key={key} onClick={() => addLetter(key)} className="w-14 h-14 bg-gray-700 text-white rounded shadow-md hover:bg-gray-600">
+              <button key={key} onClick={() => addLetter(key)} className="w-14 h-14 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600">
                 {key}
               </button>
             ))}
-            <button className="w-20 bg-gray-700 text-white rounded shadow-md hover:bg-gray-600" onClick={submitGuess}>
+            <button className="w-20 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600" onClick={submitGuess}>
               Enter
             </button>
           </div>
