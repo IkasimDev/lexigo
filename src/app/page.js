@@ -3,17 +3,6 @@ import Footer from "@/components/Footer/footer";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-
-async function getTodayWord() {
-  // TODO: Lógica para fazer a requisição da API para pegar a palavra e o significado dela
-  // Essa função retornará um array
-  // [{ word: "palavra", text: "significado" }]
-  // Boa sorte Ark
-  // Algumas coisas a levar em consideração:
-  // uma página aqui no nextjs é definida como client side colocando na primeira linha o "use client" como você pode ver na primeira linha
-  // Provavelmente essa função deverá ser efetuada em outra página sem o uso do use client, mas se der para fazer nessa perfeito
-}
-
 export default function Home() {
 
   const [ans, setAns] = useState("feira"); // Resposta
@@ -24,6 +13,7 @@ export default function Home() {
   const [colors, setColors] = useState(Array(6).fill(Array(5).fill("bg-gray-700"))); // Novo estado para cores
 
   const [guessedRight, setGuessedRight] = useState(false);
+
 
   // useEffect com um addEventListener que vai escutar por teclas sendo pressionadas no teclado
   useEffect(() => {
@@ -145,12 +135,8 @@ export default function Home() {
                   id={`G-Palavra-${rowIndex + 1}-Letra-${colIndex + 1}`}
                   className={`bg-transparent border border-columnColor border-[0.4rem] rounded flex items-center justify-center text-white font-bold ${colors[rowIndex][colIndex]} ${animate && rowIndex === currentGuessIndex && colIndex === currentLetterIndex ? 'animate-type' : ''} ${rowIndex === currentGuessIndex && colIndex === currentLetterIndex ? 'border-b-4 border-b-white' : ''} ${rowIndex !== currentGuessIndex ? 'columnDisabled' : ''}`}
                   onAnimationEnd={() => setAnimate(false)}
-                // onClick={() => {
-                //     setCurrentLetterIndex(colIndex)
-                // }}
                 >
                   {guess[colIndex] || ""}
-                  {/* {console.log(`RowIndex: ${rowIndex} - ColIndex: ${colIndex} - currentGuessI: ${currentGuessIndex} - CurrentLetterI: ${currentLetterIndex}`)} */}
                 </div>
               ))}
             </div>
@@ -158,31 +144,31 @@ export default function Home() {
         </div>
 
         {/* Teclado */}
-        <div className="row-start-3 grid grid-rows-3 gap-2">
-          <div className="flex gap-2 justify-center">
+        <div className="row-start-3 grid grid-rows-3 gap-2 w-full max-w-2xl">
+          <div className="flex gap-1 justify-center flex-wrap">
             {"QWERTYUIOP".split("").map((key) => (
-              <button key={key} onClick={() => addLetter(key)} className="w-14 h-14 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600">
+              <button key={key} onClick={() => addLetter(key)} className="w-10 h-10 sm:w-14 sm:h-14 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600">
                 {key}
               </button>
             ))}
           </div>
-          <div className="flex gap-2 justify-center">
+          <div className="flex gap-1 justify-center flex-wrap">
             {"ASDFGHJKL".split("").map((key) => (
-              <button key={key} onClick={() => addLetter(key)} className="w-14 h-14 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600">
+              <button key={key} onClick={() => addLetter(key)} className="w-10 h-10 sm:w-14 sm:h-14 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600">
                 {key}
               </button>
             ))}
-            <button className="w-20 bg-[#2E2E3E] text-white rounded shadow-md hover:bg-gray-600" onClick={removeLetter}>
+          </div>
+          <div className="flex gap-1 justify-center flex-wrap">
+            <button className="w-16 sm:w-20 h-10 sm:h-14 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600" onClick={removeLetter}>
               Apagar
             </button>
-          </div>
-          <div className="flex gap-2 justify-center">
             {"ZXCVBNM".split("").map((key) => (
-              <button key={key} onClick={() => addLetter(key)} className="w-14 h-14 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600">
+              <button key={key} onClick={() => addLetter(key)} className="w-10 h-10 sm:w-14 sm:h-14 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600">
                 {key}
               </button>
             ))}
-            <button className="w-20 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600" onClick={submitGuess}>
+            <button className="w-16 sm:w-20 h-10 sm:h-14 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600" onClick={submitGuess}>
               Enter
             </button>
           </div>
@@ -192,5 +178,6 @@ export default function Home() {
       {/* Footer */}
       <Footer />
     </div>
+
   );
 }
