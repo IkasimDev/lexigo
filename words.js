@@ -13,8 +13,10 @@ function gerarJSON() {
     // Separa o texto em palavras
     const words = data.split(/\s+/);
 
-    // Filtra apenas as palavras de 5 letras
-    const fiveLetterWords = words.filter(word => word.length === 5);
+    // Filtra palavras de 5 letras contendo apenas letras de A a Z
+    const fiveLetterWords = words.filter(word => 
+      word.length === 5 && /^[a-zA-Z]+$/.test(word)
+    );
 
     // Mapeia as palavras para um formato com significado (exemplo genérico de significado)
     const jsonWords = fiveLetterWords.map(word => ({

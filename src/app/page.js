@@ -3,9 +3,24 @@ import Footer from "@/components/Footer/footer";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
+async function getTodayWord() {
+  try {
+    const response = await fetch("/api/getTodayWord"); // Chama o endpoint da API.
+    if (!response.ok) {
+      throw new Error("Failed to fetch the word");
+    }
+    const data = await response.json();
+    return [{ word: data.word, text: data.text }];
+  } catch (error) {
+    console.error(error);
+    return [{ word: "Error", text: "Could not fetch the word" }];
+  }
+}
+
 export default function Home() {
 
-  const [ans, setAns] = useState("feira"); // Resposta
+  const [ans, setAns] = useState(null); // Resposta
+  const [sig, setSig] = useState(null) // Significado
   const [guesses, setGuesses] = useState(Array(6).fill("")); // Palavras tentadas em um array
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0); // Letra atual, ná pratica isso aqui só serve para termos uma referência visual de em que quadrado estamos no front end
   const [currentGuessIndex, setCurrentGuessIndex] = useState(0); // Tentativa atual
@@ -14,6 +29,21 @@ export default function Home() {
 
   const [guessedRight, setGuessedRight] = useState(false);
 
+
+  useEffect(() => {
+    const getData = async () => {
+      const bruteData = await getTodayWord();
+
+      if(bruteData[0].word && bruteData[0].text) {
+        setAns(bruteData[0].word);
+        setSig(bruteData[0].text);
+      }
+  
+    }
+
+    getData();
+    
+  }, [])
 
   // useEffect com um addEventListener que vai escutar por teclas sendo pressionadas no teclado
   useEffect(() => {
@@ -111,6 +141,10 @@ export default function Home() {
     setColors(updatedColors); // Finalmente atualizamos o state com o array finalizado.
   };
 
+  if(ans == null && sig == null) {
+    return (<>Loading</>)
+  }
+
   return (
     <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center p-4 gap-8 font-[family-name:var(--font-geist-sans)] text-[#D3D3D3]">
 
@@ -121,7 +155,7 @@ export default function Home() {
         <div className="bg-[#2E2E3E] p-4 rounded-lg shadow-lg text-center w-full text-white">
           <h1 className="text-lg font-bold">Significado:</h1>
           <p className="text-base">
-            Mercado público em dias ou épocas fixas em lugar determinado.
+            {sig}
           </p>
         </div>
 
