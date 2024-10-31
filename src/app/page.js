@@ -2,10 +2,11 @@
 import Footer from "@/components/Footer/footer";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 async function getTodayWord() {
   try {
-    const response = await fetch("/api/getTodayWord"); // Chama o endpoint da API.
+    const response = await fetch("/api/getTodayWord");
     if (!response.ok) {
       throw new Error("Failed to fetch the word");
     }
@@ -17,133 +18,151 @@ async function getTodayWord() {
   }
 }
 
+// Função para salvar o estado completo do jogo no cookie
+function storeGameStateInCookie(guesses, colors, currentGuessIndex, currentLetterIndex, guessedRight, keyboardColors) {
+  const gameState = {
+    guesses,
+    colors,
+    currentGuessIndex,
+    currentLetterIndex,
+    guessedRight,
+    keyboardColors
+  };
+  Cookies.set("gameState", JSON.stringify(gameState), { expires: 1 });
+}
+
+// Função para carregar o estado completo do jogo do cookie
+function loadGameStateFromCookie() {
+  const savedState = Cookies.get("gameState");
+  return savedState
+    ? JSON.parse(savedState)
+    : {
+      guesses: Array(6).fill(""),
+      colors: Array(6).fill(Array(5).fill("bg-gray-700")),
+      currentGuessIndex: 0,
+      currentLetterIndex: 0,
+      guessedRight: false,
+      keyboardColors: {},
+    };
+}
+
 export default function Home() {
 
-  const [ans, setAns] = useState(null); // Resposta
-  const [sig, setSig] = useState(null) // Significado
-  const [guesses, setGuesses] = useState(Array(6).fill("")); // Palavras tentadas em um array
-  const [currentLetterIndex, setCurrentLetterIndex] = useState(0); // Letra atual, ná pratica isso aqui só serve para termos uma referência visual de em que quadrado estamos no front end
-  const [currentGuessIndex, setCurrentGuessIndex] = useState(0); // Tentativa atual
-  const [animate, setAnimate] = useState(false); // animação dos quadrado
-  const [colors, setColors] = useState(Array(6).fill(Array(5).fill("bg-gray-700"))); // Novo estado para cores
+  const savedState = loadGameStateFromCookie();
+  const [ans, setAns] = useState(null);
+  const [sig, setSig] = useState(null);
+  const [guesses, setGuesses] = useState(savedState.guesses);
+  const [colors, setColors] = useState(savedState.colors);
+  const [keyboardColors, setKeyboardColors] = useState(savedState.keyboardColors); // Estado para cores do teclado
+  const [currentGuessIndex, setCurrentGuessIndex] = useState(savedState.currentGuessIndex);
+  const [currentLetterIndex, setCurrentLetterIndex] = useState(savedState.currentLetterIndex);
+  const [guessedRight, setGuessedRight] = useState(savedState.guessedRight);
+  const [animate, setAnimate] = useState(false);
 
-  const [guessedRight, setGuessedRight] = useState(false);
 
+  // Salva o estado do jogo sempre que o estado for atualizado
+  useEffect(() => {
+    storeGameStateInCookie(guesses, colors, currentGuessIndex, currentLetterIndex, guessedRight, keyboardColors);
+  }, [guesses, colors, currentGuessIndex, currentLetterIndex, guessedRight, keyboardColors]);
 
   useEffect(() => {
     const getData = async () => {
       const bruteData = await getTodayWord();
-
-      if(bruteData[0].word && bruteData[0].text) {
+      if (bruteData[0].word && bruteData[0].text) {
         setAns(bruteData[0].word);
         setSig(bruteData[0].text);
       }
-  
-    }
-
+    };
     getData();
-    
-  }, [])
+  }, []);
 
-  // useEffect com um addEventListener que vai escutar por teclas sendo pressionadas no teclado
   useEffect(() => {
-    const handleKeyDown = (e) => { // Função que pegará a tecla e realizará a ação pretendida
-      const word = e.key.toLowerCase(); // Colocamos a palavra em minúsculo para evitar diferenciação com teclas sendo digitadas em maiúsculas
+    const handleKeyDown = (e) => {
+      const word = e.key.toLowerCase();
+      if (guessedRight) return;
 
-      if (guessedRight) return // Se já tiver acertado, sem necessidade de prosseguir mais
-
-      if (/^[a-z]$/.test(word)) { // Usamos um regex para verificar se a palavra está usando letras do alfabeto (para evitar, número e outras coisas)
-        addLetter(word.toUpperCase()); // Enfim chamamos a função que adicionará a letra a palavra
-      } else if (e.key === "Backspace") { // Se por acaso a tecla for a de apagar, então chama a função de deletar letra
-        removeLetter()
-      } else if (e.key === "Enter") { // Se por acaso a tecla for enter, então dá submit na tentativa
+      if (/^[a-z]$/.test(word)) {
+        addLetter(word.toUpperCase());
+      } else if (e.key === "Backspace") {
+        removeLetter();
+      } else if (e.key === "Enter") {
         submitGuess();
       }
-    }
+    };
 
-    window.addEventListener("keydown", handleKeyDown); // eventlistener atrelado a página que chama a função se detectar algo
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [guesses, currentGuessIndex, currentLetterIndex, guessedRight]);
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown); // removemos o listener depois de alguma detecção para evitar alguns bugs
-    }
-  }, [guesses, currentGuessIndex, currentLetterIndex, guessedRight]) // Depêndencias do useEffect
-
-
-  // Função que adiciona a letra à palavra
-  const addLetter = (letter) => { // Ela recebe um argumento letter, que é uma string, que obviamente é a letra
-
-    if (guesses[currentGuessIndex].length < 5 && !guessedRight) { // verifica se a palavra tem menos de 5 letras, se tiver então pode adicionar letras
-      const updatedGuesses = [...guesses]; // Spread Operator para retornar uma duplicata do array de palavras tentadas
-      updatedGuesses[currentGuessIndex] += letter; // Realizo a adição da letra à palavra do array, utilizando a tentativa atuação com index do array
-
-      // Acionar animação
+  // Adiciona uma letra
+  const addLetter = (letter) => {
+    if (guesses[currentGuessIndex].length < 5 && !guessedRight) {
+      const updatedGuesses = [...guesses];
+      updatedGuesses[currentGuessIndex] += letter;
       setAnimate(true);
-
-      setGuesses(updatedGuesses); // Seto o array modificado para o UseState
-      setCurrentLetterIndex(currentLetterIndex + 1) // Acrescento 1 no index da letra atual
-
+      setGuesses(updatedGuesses);
+      setCurrentLetterIndex(currentLetterIndex + 1);
     }
-  }
-
-  // Função para remover letra da palavra
-  const removeLetter = () => {
-    if (guessedRight) return // Se já tiver acertado, sem necessidade de prosseguir mais
-    const updatedGuesses = [...guesses]; // Mesmo esquema, retorna uma duplicata do array
-    updatedGuesses[currentGuessIndex] = updatedGuesses[currentGuessIndex].slice(0, -1); // Realiza a modificação removendo a ultima letra na extrema ponta direita (-1)
-    setGuesses(updatedGuesses) // Seto o array modificado para o UseState
-    setCurrentLetterIndex(currentLetterIndex > 0 ? currentLetterIndex - 1 : 0); // Volta para a letra anterior
-  }
-
-  // Função para fazer o submit da tentativa
-  const submitGuess = () => {
-    // Faço a verificação para ver se essa tentativa esta dentro do limite de 5 tentativos e verifico também se a palavra da tentativa tem 5 letras, para evitar de enviar palavras com menos letras
-    if (currentGuessIndex < 5 && guesses[currentGuessIndex].length == 5 && !guessedRight) {
-      checkGuess(guesses[currentGuessIndex])
-      if (guesses[currentGuessIndex].toLowerCase() === ans) {
-        console.log("Resposta Certa")
-        setGuessedRight(true);
-      } else {
-        setCurrentGuessIndex(currentGuessIndex + 1); // Realizo a incrementação da tentativa, em suma passando para a próxima coluna.
-        setCurrentLetterIndex(0); // Reinicia o índice da letra para a nova tentativa
-      }
-    }
-    // TODO: Adicionar lógica para verificar se a palavra é de acordo com a resposta
-    // Lembrando que o guesses[currentGuessIndex] vai retornar a palavra em letra maiúscula e.g: AMORA, terá que deixar minúscula utilizando o toLowerCase() para fazer a verificação guesses[currentGuessIndex] == ans 
-  }
-
-  // Função para checar a resposta
-  const checkGuess = (guess) => {
-    const answerArray = ans.split(""); // Dividimos a resposta em letras em um array
-    const guessArray = guess.toLowerCase().split(""); // Fazemos o mesmo para a palavra da tentativa atual
-    const newColors = Array(5).fill("wordWrong"); // Criamos um array com as cores
-
-    const tempAns = [...answerArray]; // Criamos uma duplicata do array resposta 
-
-    // Primeiro loop para marcar as letras na posição correta
-    guessArray.forEach((letter, index) => {
-      if (letter === answerArray[index]) { // Se a letra estiver na mesma posição que na resposta
-        newColors[index] = "wordRight"; // Definimos então a cor para a letra certa e colocamos no array de cores
-        tempAns[index] = null; // Como a letra já foi vista removemos ela do array com
-      }
-    });
-
-    // Segundo loop para letras corretas na posição errada
-    guessArray.forEach((letter, index) => {
-      if (newColors[index] !== "wordRight" && tempAns.includes(letter)) { // Aqui existe uam verificação para ver se o index da cor é diferente de verde e então veiricamos se a letra se inclui no array temporario da resposta.
-        newColors[index] = "wordWarn"; // Colocamos então a cor laranja para essa letra
-        tempAns[tempAns.indexOf(letter)] = null; // Como a letra já foi vista removemos ela do array com
-      }
-    });
-
-    // Atualiza as cores no estado
-    const updatedColors = [...colors]; // Setamos o array modificado
-    updatedColors[currentGuessIndex] = newColors; // Adicionamos as cores aos respectivos indexes
-    setColors(updatedColors); // Finalmente atualizamos o state com o array finalizado.
   };
 
-  if(ans == null && sig == null) {
-    return (<>Loading</>)
+  // Remove a última letra
+  const removeLetter = () => {
+    if (guessedRight) return;
+    const updatedGuesses = [...guesses];
+    updatedGuesses[currentGuessIndex] = updatedGuesses[currentGuessIndex].slice(0, -1);
+    setGuesses(updatedGuesses);
+    setCurrentLetterIndex(currentLetterIndex > 0 ? currentLetterIndex - 1 : 0);
+  };
+
+  // Envia a tentativa
+  const submitGuess = () => {
+    if (currentGuessIndex < 6 && guesses[currentGuessIndex].length === 5 && !guessedRight) {
+      checkGuess(guesses[currentGuessIndex]);
+      if (guesses[currentGuessIndex].toLowerCase() === ans) {
+        setGuessedRight(true);
+      } else {
+        setCurrentGuessIndex(currentGuessIndex + 1);
+        setCurrentLetterIndex(0);
+      }
+    }
+  };
+
+  // Checa a resposta
+  const checkGuess = (guess) => {
+    const answerArray = ans.split("");
+    const guessArray = guess.toLowerCase().split("");
+    const newColors = Array(5).fill("wordWrong");
+    const tempAns = [...answerArray];
+    const updatedKeyboardColors = { ...keyboardColors };
+
+    guessArray.forEach((letter, index) => {
+      if (letter === answerArray[index]) {
+        newColors[index] = "wordRight";
+        tempAns[index] = null;
+        updatedKeyboardColors[letter] = "bg-green-500"; // Letra correta na posição certa
+      }
+    });
+
+    guessArray.forEach((letter, index) => {
+      if (newColors[index] !== "wordRight" && tempAns.includes(letter)) {
+        newColors[index] = "wordWarn";
+        tempAns[tempAns.indexOf(letter)] = null;
+        updatedKeyboardColors[letter] = updatedKeyboardColors[letter] !== "bg-green-500" ? "bg-yellow-500" : updatedKeyboardColors[letter];
+      } else if (!tempAns.includes(letter) && newColors[index] !== "wordRight" && !updatedKeyboardColors[letter]) {
+        updatedKeyboardColors[letter] = "bg-gray-500"; // Letra incorreta
+      }
+    });
+
+    const updatedColors = [...colors];
+    updatedColors[currentGuessIndex] = newColors;
+    setColors(updatedColors);
+    setKeyboardColors(updatedKeyboardColors);
+  };
+
+  if (ans == null && sig == null) {
+    return <></>;
   }
+
 
   return (
     <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center p-4 gap-8 font-[family-name:var(--font-geist-sans)] text-[#D3D3D3]">
@@ -181,14 +200,22 @@ export default function Home() {
         <div className="row-start-3 grid grid-rows-3 gap-2 w-full max-w-2xl">
           <div className="flex gap-1 justify-center flex-wrap">
             {"QWERTYUIOP".split("").map((key) => (
-              <button key={key} onClick={() => addLetter(key)} className="w-10 h-10 sm:w-14 sm:h-14 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600">
+              <button
+                key={key}
+                onClick={() => addLetter(key)}
+                className={`w-10 h-10 sm:w-14 sm:h-14 font-bold rounded shadow-md ${keyboardColors[key.toLowerCase()] || "bg-[#2E2E3E]"} text-white hover:bg-gray-600`}
+              >
                 {key}
               </button>
             ))}
           </div>
           <div className="flex gap-1 justify-center flex-wrap">
             {"ASDFGHJKL".split("").map((key) => (
-              <button key={key} onClick={() => addLetter(key)} className="w-10 h-10 sm:w-14 sm:h-14 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600">
+              <button
+                key={key}
+                onClick={() => addLetter(key)}
+                className={`w-10 h-10 sm:w-14 sm:h-14 font-bold rounded shadow-md ${keyboardColors[key.toLowerCase()] || "bg-[#2E2E3E]"} text-white hover:bg-gray-600`}
+              >
                 {key}
               </button>
             ))}
@@ -198,7 +225,11 @@ export default function Home() {
               Apagar
             </button>
             {"ZXCVBNM".split("").map((key) => (
-              <button key={key} onClick={() => addLetter(key)} className="w-10 h-10 sm:w-14 sm:h-14 bg-[#2E2E3E] text-white font-bold rounded shadow-md hover:bg-gray-600">
+              <button
+                key={key}
+                onClick={() => addLetter(key)}
+                className={`w-10 h-10 sm:w-14 sm:h-14 font-bold rounded shadow-md ${keyboardColors[key.toLowerCase()] || "bg-[#2E2E3E]"} text-white hover:bg-gray-600`}
+              >
                 {key}
               </button>
             ))}

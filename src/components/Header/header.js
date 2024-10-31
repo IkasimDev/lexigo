@@ -1,9 +1,34 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import HelperModal from "../Modal/helper";
+import Cookies from "js-cookie";
+
+function storeVisibleHelper(state) {
+    Cookies.set("helperAlreadySeen", state, { expires: 1 }); // Armazena o estado no cookie
+}
+
+function loadVisibleHelper() {
+    const savedState = Cookies.get("helperAlreadySeen");
+    // Retorna um booleano: true se já foi visto, caso contrário false
+    return savedState === 'true';
+}
 
 export default function Header() {
-    const [helperVisible, setHelperVisible] = useState(true);
+    const [helperVisible, setHelperVisible] = useState(false); // Inicialmente oculto
+
+    useEffect(() => {
+        const savedState = loadVisibleHelper(); // Carrega o estado do cookie
+        setHelperVisible(!savedState); // Exibe o modal se ainda não foi visto
+    }, []);
+
+    useEffect(() => {
+        // Armazena o estado no cookie ao fechar o modal
+        storeVisibleHelper(!helperVisible);
+    }, [helperVisible]);
+
+    const controlHelper = (state) => {
+        setHelperVisible(state);
+    }
 
     return (
         <>
@@ -29,7 +54,7 @@ export default function Header() {
                     </div>
                 </div>
             </header>
-            {helperVisible && <HelperModal setController={setHelperVisible} />}
+            {helperVisible && <HelperModal setController={controlHelper} />}
         </>
     );
 }
